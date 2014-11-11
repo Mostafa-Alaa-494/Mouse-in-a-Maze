@@ -4,17 +4,20 @@ public abstract class Tile {
 	private int size;
 	private int[] x = { -1, -1 };
 	private int[] y = { -1, -1 };
-
+	
+	static int staticID = 2;
+	
 	public Tile() {
-		this.setId(-1);
-		this.setType('b');
+		this.setId(0);
+		this.setType(' ');
 		this.setSize(0);
 	}
 
-	public Tile(int id, char type, int size, int[] x, int[] y) {
-		this.setId(id);
+	public Tile(char type, int size, int[] x, int[] y) {
+		this.setId(staticID);
 		this.setType(type);
 		this.setSize(size);
+		staticID++;
 	}
 
 	public int getId() {
@@ -29,8 +32,8 @@ public abstract class Tile {
 		return type;
 	}
 
-	public void setType(char type) {
-		this.type = type;
+	public void setType(char c) {
+		this.type = c;
 	}
 
 	public int getSize() {
