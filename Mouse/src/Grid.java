@@ -18,6 +18,8 @@ public class Grid {
 	}
 
 	public void generateMap() {
+		Mouse mouse = new Mouse();
+		tiles.add(mouse);
 		this.map[2][0] = 1;
 		this.map[2][1] = 1;
 		for (int i = 0; i < 6; i++) {
@@ -196,6 +198,15 @@ public class Grid {
 			}
 			return moves;
 		}
+	}
+
+	public boolean satisfiesGoalTest(int[][] a) {
+		int m = tiles.getFirst().getY()[1];
+		for (int i = m; i < 6; i++) {
+			if (a[2][i] != -1)
+				return false;
+		}
+		return true;
 	}
 
 	public int getbTiles() {
