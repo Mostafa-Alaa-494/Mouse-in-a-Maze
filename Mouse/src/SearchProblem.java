@@ -15,7 +15,7 @@ public class SearchProblem {
 	public static void main(String... args) {
 		Grid g = GenGrid();
 
-		MiM(g, "bf", true);
+		MiM(g, "gr", true);
 
 	}
 
@@ -74,7 +74,9 @@ public class SearchProblem {
 			if (!goalTest(head)) {
 				expand(n);
 				expanded++;
-				System.out.println("-- " + expanded + " expanded --");
+				if (expanded % 10000 == 0)
+					System.out.println("-- " + expanded + " expanded --");
+
 			} else {
 				totCost = n.cost;
 				return formSol(n);
