@@ -1,251 +1,158 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Random;
 
 public class Grid {
-	int[][] map = new int[6][6];
-	LinkedList<Tile> tiles = new LinkedList<Tile>();
-	private int bTiles;
-	private int hTiles;
-	private int v2Tiles;
-	private int v3Tiles;
+
+	private byte[][] blocks;
+	private Random random;
+
+	private int idv;
+	private int idh;
+
+	private int max;
+
+	public static void main(String... args) {
+		byte[][] b = new byte[6][6];
+		b[5][2] = b[4][2] = b[3][2] = 2;
+
+		Grid g = new Grid();
+		g.blocks = b;
+		System.out.println(g);
+		System.out.println(g.move((byte) 2, false));
+
+	}
+
+	/*
+	 * j MOVES HORIZONTALLY i MOVES VERTICALLy
+	 */
 
 	public Grid() {
-		bTiles = 0;
-		hTiles = 0;
-		v2Tiles = 0;
-		v3Tiles = 0;
+		blocks = new byte[6][6];
+		blocks[2][0] = blocks[2][1] = -1; // -1 symbols mouse
+		idh = 1; // horizontal odd
+		idv = 2; // vertical even
+		random = new Random(System.currentTimeMillis());
+		genRandomGrid();
+		max = (idh > idv) ? idh : idv;
 	}
 
-	public void generateMap() {
-		Mouse mouse = new Mouse();
-		tiles.add(mouse);
-		this.map[2][0] = 1;
-		this.map[2][1] = 1;
-		for (int i = 0; i < 6; i++) {
-			for (int j = 0; j < 6; j++) {
-				if (map[i][j] == 0) {
-					int tileID = generateRandomTile(i, j);
-					// System.out.println(tileID);
-					this.map[i][j] = tileID;
-					for (int k = 0; k < tiles.size(); k++) {
-						if (tiles.get(k).getId() == tileID) {
-							Tile tile = tiles.get(k);
-							if (tile.getType() == 'h')
-								this.map[i][j + 1] = tileID;
-							else if (tile.getType() == 'v') {
-								this.map[i + 1][j] = tileID;
-								if (tile.getSize() == 3)
-									this.map[i + 2][j] = tileID;
-							}
-						}
+	public Grid(Grid g) {
+		blocks = new byte[6][6];
+		for (int i = 0; i < blocks.length; i++) {
+			for (int j = 0; j < blocks[i].length; j++) {
+				blocks[i][j] = g.blocks[i][j];
+			}
+		}
+	}
+
+	private void genRandomGrid() {
+		for (int i = 0; i < blocks.length; i++) {
+			for (int j = 0; j < blocks[i].length; j++) {
+				if (blocks[i][j] == 0) {
+					try {
+						genBlock(i, j);
+					} catch (ArrayIndexOutOfBoundsException e) {
+						blocks[i][j] = 0;
 					}
 				}
 			}
 		}
 	}
 
-	public int generateRandomTile(int x, int y) {
-		// System.out.println("X = " + x);
-		// System.out.println("Y = " + y);
-		Random rand = new Random();
-		int n = rand.nextInt(4) + 1;
-		// System.out.println(n);
-		if (n == 1) {
-			// System.out.println("BLANK");
-			int[] x1 = { x, x };
-			int[] y1 = { y, y };
-			Tile t = new Blank(x1, y1);
-			this.setbTiles(bTiles++);
-			return t.getId();
-		} else if (n == 2) {
-			if (y < 5 && map[x][y + 1] == 0) {
-				// System.out.println("HORIZ");
-				int[] x1 = { x, x };
-				int[] y1 = { y, y + 1 };
-				Tile t = new Horizontal(x1, y1);
-				this.sethTiles(hTiles++);
-				tiles.add(t);
-				return t.getId();
+	private void genBlock(int i, int j) throws ArrayIndexOutOfBoundsException {
+		if (random.nextDouble() < 0.5)
+			blocks[i][j] = 0;
+		else if (random.nextDouble() < 0.5) {
+			if (blocks[i][j + 1] == 0) {
+				blocks[i][j] = (byte) idh;
+				blocks[i][j + 1] = (byte) idh;
+				idh += 2;
 			} else {
-				return generateRandomTile(x, y);
+				blocks[i][j] = 0;
 			}
-		} else if (n == 3) {
-			if (x < 5 && map[x + 1][y] == 0) {
-				// System.out.println("VERT2");
-				int[] x1 = { x, x + 1 };
-				int[] y1 = { y, y };
-				Tile t = new Vertical(2, x1, y1);
-				tiles.add(t);
-				this.setV2Tiles(v2Tiles++);
-				return t.getId();
+		} else if (random.nextDouble() < 0.5) {
+			if (blocks[i + 1][j] == 0 && blocks[i + 2][j] == 0) {
+				blocks[i][j] = (byte) idv;
+				blocks[i + 1][j] = (byte) idv;
+				blocks[i + 2][j] = (byte) idv;
+				idv += 2;
 			} else {
-				return generateRandomTile(x, y);
+				blocks[i][j] = 0;
 			}
-		} else if (n == 4) {
-			if ((x < 4) && map[x + 1][y] == 0 && map[x + 2][y] == 0) {
-				// System.out.println("VERT3");
-				int[] x1 = { x, x + 2 };
-				int[] y1 = { y, y };
-				Tile t = new Vertical(3, x1, y1);
-				tiles.add(t);
-				this.setV3Tiles(v3Tiles++);
-				return t.getId();
-			} else {
-				return generateRandomTile(x, y);
-			}
+		} else if (blocks[i + 1][j] == 0) {
+			blocks[i][j] = (byte) idv;
+			blocks[i + 1][j] = (byte) idv;
+			idv += 2;
+		} else {
+			blocks[i][j] = 0;
 		}
-		return 0;
 	}
 
-	public Tile getTile(int id) {
-		for (int k = 0; k < tiles.size(); k++) {
-			if (tiles.get(k).getId() == id) {
-				Tile tile = tiles.get(k);
-				System.out.println("IF");
-				return tile;
+	public String toString() {
+		String s = "";
+		for (int i = 0; i < blocks.length; i++) {
+			for (int j = 0; j < blocks[i].length; j++) {
+				s += "\t" + blocks[i][j];
 			}
-			System.out.println(k);
+			s += "\n";
 		}
-		System.out.println(tiles.size());
-		System.out.println("NULL");
+		return s;
+	}
+
+	public Grid move(byte block, boolean forward) {
+		try {
+			return moveHelper(block, forward);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+
+	private Grid moveHelper(byte block, boolean forward)
+			throws ArrayIndexOutOfBoundsException {
+		Grid g = new Grid(this);
+		int step = forward ? 1 : -1;
+		for (int i = 0; i < blocks.length; i++) {
+			for (int j = 0; j < blocks[i].length; j++) {
+				if (blocks[i][j] == block) {
+					if (blocks[i][j] % 2 == 0) {
+						while (blocks[i][j] == block)
+							i += step;
+						if (blocks[i][j] == 0) {
+							while (i - step > -1 && i - step < blocks.length
+									&& blocks[i - step][j] == block) {
+								g.blocks[i][j] = g.blocks[i - step][j];
+								i -= step;
+							}
+							g.blocks[i][j] = 0;
+							return g;
+						} else {
+							return null;
+						}
+					} else {
+						while (blocks[i][j] == block)
+							j += step;
+						if (blocks[i][j] == 0) {
+							while (j - step > -1 && j - step < blocks[i].length
+									&& blocks[i][j - step] == block) {
+								g.blocks[i][j] = g.blocks[i][j - step];
+								j -= step;
+							}
+							g.blocks[i][j] = 0;
+							return g;
+						} else {
+							return null;
+						}
+					}
+				}
+			}
+		}
 		return null;
 	}
-
-	public void printGrid() {
-		for (int i = 0; i < 6; i++) {
-			for (int j = 0; j < 6; j++) {
-				System.out.print(map[i][j] + " ");
-			}
-			System.out.print("\n");
-		}
+	
+	public int getMax() {
+		return max;
 	}
-
-	public boolean hasPossibleMoves(int id) {
-		for (int k = 0; k < tiles.size(); k++) {
-			if (tiles.get(k).getId() == id) {
-				if (!getTilePossibleMoves(id).isEmpty()) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public ArrayList<int[][]> getTilePossibleMoves(int id) {
-		ArrayList<int[][]> moves = new ArrayList<int[][]>(2);
-		int[][] map2 = new int[6][6];
-		int[][] map3 = new int[6][6];
-		for (int i = 0; i < 6; i++) {
-			for (int j = 0; j < 6; j++) {
-				map2[i][j] = map[i][j];
-				map3[i][j] = map[i][j];
-			}
-		}
-		if (id == -1)
-			return null;
-		else {
-			for (int k = 0; k < tiles.size(); k++) {
-				if (tiles.get(k).getId() == id) {
-					Tile tile = tiles.get(k);
-					if (tile.getType() == 'h') {
-						if (tile.getY()[1] + 1 <= 5
-								&& map2[tile.getX()[0]][tile.getY()[1] + 1] == -1) {
-							System.out.println("H1");
-							map2[tile.getX()[0]][tile.getY()[0]] = -1;
-							map2[tile.getX()[0]][tile.getY()[1] + 1] = tile
-									.getId();
-							moves.add(map2);
-						}
-						if (tile.getY()[0] - 1 >= 0
-								&& map3[tile.getX()[0]][tile.getY()[0] - 1] == -1) {
-							System.out.println("H2");
-							map3[tile.getX()[0]][tile.getY()[1]] = -1;
-							map3[tile.getX()[0]][tile.getY()[0] - 1] = tile
-									.getId();
-							moves.add(map3);
-						}
-					} else if (tile.getType() == 'v') {
-						if (tile.getX()[1] + 1 <= 5
-								&& map[tile.getX()[1] + 1][tile.getY()[0]] == -1) {
-							System.out.println("V1");
-							map2[tile.getX()[0]][tile.getY()[0]] = -1;
-							map2[tile.getX()[1] + 1][tile.getY()[1]] = tile
-									.getId();
-							moves.add(map2);
-						}
-						if (tile.getX()[0] - 1 >= 0
-								&& map[tile.getX()[0] - 1][tile.getY()[0]] == -1) {
-							System.out.println("V2");
-							map3[tile.getX()[1]][tile.getY()[0]] = -1;
-							map3[tile.getX()[0] - 1][tile.getY()[0]] = tile
-									.getId();
-							moves.add(map3);
-						}
-					}
-					for (int i = 0; i < moves.size(); i++) {
-						System.out.println(moves.size());
-						int[][] move1;
-						move1 = moves.get(i);
-						for (int z = 0; z < 6; z++) {
-							for (int j = 0; j < 6; j++) {
-								System.out.print(move1[z][j] + " ");
-							}
-							System.out.print("\n");
-						}
-					}
-				}
-			}
-			return moves;
-		}
-	}
-
-	public boolean satisfiesGoalTest(int[][] a) {
-		int m = tiles.getFirst().getY()[1];
-		for (int i = m; i < 6; i++) {
-			if (a[2][i] != -1)
-				return false;
-		}
-		return true;
-	}
-
-	public int getbTiles() {
-		return bTiles;
-	}
-
-	public void setbTiles(int bTiles) {
-		this.bTiles = bTiles;
-	}
-
-	public int gethTiles() {
-		return hTiles;
-	}
-
-	public void sethTiles(int hTiles) {
-		this.hTiles = hTiles;
-	}
-
-	public int getV2Tiles() {
-		return v2Tiles;
-	}
-
-	public void setV2Tiles(int v2Tiles) {
-		this.v2Tiles = v2Tiles;
-	}
-
-	public int getV3Tiles() {
-		return v3Tiles;
-	}
-
-	public void setV3Tiles(int v3Tiles) {
-		this.v3Tiles = v3Tiles;
-	}
-
-	public static void main(String[] args) {
-		Grid grid = new Grid();
-		System.out.println();
-		grid.generateMap();
-		grid.printGrid();
-		System.out.print(grid.hasPossibleMoves(2));
+	
+	public byte getBlock(int i, int j) {
+		return blocks[i][j];
 	}
 }
