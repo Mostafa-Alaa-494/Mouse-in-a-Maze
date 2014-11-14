@@ -2,8 +2,8 @@ import java.util.ArrayList;
 
 public abstract class Problem {
 	private ArrayList<String> operators;
-	private Tree.Node initialState;
-	private ArrayList<Tree.Node> stateSpace;
+	private Node initialState;
+	private ArrayList<Node> stateSpace;
 	
 	public boolean goalTest(Grid g){
 		return false;
@@ -20,19 +20,19 @@ public abstract class Problem {
 		this.operators = operators;
 	}
 
-	public Tree.Node getInitialState() {
+	public Node getInitialState() {
 		return initialState;
 	}
 
-	public void setInitialState(Tree.Node initialState) {
+	public void setInitialState(Node initialState) {
 		this.initialState = initialState;
 	}
 
-	public ArrayList<Tree.Node> getStateSpace() {
+	public ArrayList<Node> getStateSpace() {
 		return stateSpace;
 	}
 
-	public void setStateSpace(ArrayList<Tree.Node> stateSpace) {
+	public void setStateSpace(ArrayList<Node> stateSpace) {
 		this.stateSpace = stateSpace;
 	}
 }
