@@ -1,11 +1,9 @@
 import java.util.LinkedList;
 
 public abstract class Search {
-	String name;
-	Tree tree;
-	LinkedList<Tree.Node> q;
+	LinkedList<Node> q;
 	
-	public Tree.Node GeneralSearch(Problem p){
+	public Node GeneralSearch(Problem p){
 		return null;
 	}
 }
