@@ -2,15 +2,12 @@ public abstract class Tile {
 	private int id;
 	private char type;
 	private int size;
-	private int[] x = { -1, -1 };
-	private int[] y = { -1, -1 };
+	private int[] x;
+	private int[] y;
 	
 	static int staticID = 2;
 	
 	public Tile() {
-		this.setId(0);
-		this.setType(' ');
-		this.setSize(0);
 	}
 
 	public Tile(char type, int size, int[] x, int[] y) {
